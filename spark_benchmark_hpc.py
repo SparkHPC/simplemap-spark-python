@@ -22,7 +22,7 @@ from pyspark import SparkContext, SparkConf
 
 
 def generate(n, block_count):
-    seed = int(time()/(n+1))
+    seed = int(time.time()/(n+1))
     np.random.seed(seed)
     a, b = -1000, 1000
     array = (b-a)*np.random.random_sample((block_count, 3))+a
@@ -127,8 +127,7 @@ def main():
       with open(args.json, "w") as report:
         json.dump(timers.get_all(), report)
 
-    # put reduce() code here.
-
+    result = B_avg.reduce(lambda n: n + n)
     sc.stop()
 
 
