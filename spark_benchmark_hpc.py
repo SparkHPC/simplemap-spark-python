@@ -8,43 +8,48 @@ Apache Spark performance.
 from __future__ import print_function
 
 import argparse
+import glob
+import json
 import numpy as np
+import os
 import re
 import time
-import glob
-import os
 
 from pyspark import SparkContext
 
 # Used by RDD lambda to generate the work
 
 
-def generate(x, block_count):
-    seed = int(time()/(x+1))
+def generate(n, block_count):
+    seed = int(time()/(n+1))
     np.random.seed(seed)
     a, b = -1000, 1000
-    arr = (b-a)*np.random.random_sample((block_count, 3))+a
-    return (x, arr)
+    array = (b-a)*np.random.random_sample((block_count, 3))+a
+    #return (n, arr)
+    return array
 
+
+# Only needed for file I/O, which we're not doing at the moment.
+# Bring back later.
 
 def parseVectors(bin):
-    arr = np.fromstring(bin[1], dtype=np.float64)
-    arr = arr.reshape(arr.shape[0]/3, 3)
-    return (bin[0], arr)
+    array = np.fromstring(bin[1], dtype=np.float64)
+    array = arr.reshape(arr.shape[0]/3, 3)
+    return array
 
 
-def do_shift(arr, vec):
+def do_shift(array, vector_displacement):
     for i in xrange(len(arr[1])):
-        arr[1][i] += vec
-    return arr
+        array[1][i] += vector_displacement
+    return array
 
 
-def do_average(arr):
+def do_average(array):
     avg = np.array([0.0, 0.0, 0.0])
     for i in xrange(len(arr[1])):
         avg += arr[1][i]
     avg /= len(arr[1])
-    return (arr[0], avg)
+    return avg
 
 
 def noop(x):
@@ -52,11 +57,10 @@ def noop(x):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Simple Map Microbenchmark")
+    parser = argparse.ArgumentParser(description="Simple Map Spark Microbenchmark - Python Version")
 
     # Options for generating RDD (in memory)
-    parser.add_argument("-g", "--generate", type=boolean,
-                        default=false, help="generate data (boolean)")
+    parser.add_argument("-g", "--generate", action="store_true", default=False, help="generate data (boolean)")
     parser.add_argument("-b", "--blocks", type=int,
                         default=0, help="number of blocks")
     parser.add_argument("-s", "--block_size", type=int,
@@ -81,7 +85,7 @@ def parse_args():
 
 def main():
 
-    sc = SparkContext(appName="SimpleMap")
+    sc = SparkContext(appName="simplemap-spark-python")
     args = parse_args()
     timers = SimpleTimer()
 
@@ -93,9 +97,9 @@ def main():
         rdd = sc.parallelize(range(gen_num_blocks),
                              args.nodes * args.cores * args.nparts)
         gen_block_count = gen_block_size*1E6/24
-        A = rdd.map(lambda x: generate(x, gen_block_count))
+        A = rdd.map(lambda n: generate(n, gen_block_count))
     else:
-        print("either --src or --generate must be specified")
+        print("either --generate must be specified")
         sc.stop()
         from sys import exit
         exit(-1)
@@ -116,6 +120,10 @@ def main():
     timers.init_and_start("average")
     B_avg = B.map(do_average)
     timers.end("average")
+
+    if args.json:
+      with open(args.json, "w") as report:
+        json.dump(timers.get_all(), report)
 
     # put reduce() code here.
 
@@ -146,6 +154,9 @@ class SimpleTimer(object):
         timer_entry = self.timings.get({})
         delta_t = timer_entry.get('end', 0) - timer_entry.get('start', 0)
         return max(delta_t, 0)
+
+    def get_all():
+      return {k : self.get(k) for k in self.timings.keys()}
 
 
 if __name__ == "__main__":
