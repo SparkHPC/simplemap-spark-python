@@ -89,7 +89,6 @@ def main():
     sc = SparkContext(appName="simplemap-spark-python", conf=sconf)
     python_version = sys.version
     spark_python_version = sc.pythonVer
-    print("Python %s, Spark %s" % (python_version, spark_python_version))
     args = parse_args()
     timers = SimpleTimer()
 
@@ -98,7 +97,6 @@ def main():
     if args.generate:
         gen_num_blocks = args.blocks
         gen_block_size = args.block_size
-        print("gen_num_blocks",gen_num_blocks)
         x = range(0, gen_num_blocks)
         rdd = sc.parallelize(range(0, gen_num_blocks), args.nodes * args.cores * args.nparts)
         gen_block_count = gen_block_size*1E6/24
