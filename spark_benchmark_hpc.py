@@ -33,23 +33,23 @@ def generate(n, block_count):
 # Only needed for file I/O, which we're not doing at the moment.
 # Bring back later.
 
-def parseVectors(bin):
-    array = np.fromstring(bin[1], dtype=np.float64)
+def parseVectors(binary_data):
+    array = np.fromstring(binary_data, dtype=np.float64)
     array = arr.reshape(arr.shape[0]/3, 3)
     return array
 
 
 def do_shift(array, vector_displacement):
-    for i in xrange(len(arr[1])):
-        array[1][i] += vector_displacement
+    for i in range(len(array)):
+        array[i] += vector_displacement
     return array
 
 
 def do_average(array):
     avg = np.array([0.0, 0.0, 0.0])
-    for i in xrange(len(arr[1])):
-        avg += arr[1][i]
-    avg /= len(arr[1])
+    for i in range(len(array)):
+        avg += array[i]
+    avg /= len(array)
     return avg
 
 
@@ -117,17 +117,20 @@ def main():
     timers.init_and_start("shift")
     shift = np.array([25.25, -12.125, 6.333], dtype=np.float64)
     B = A.map(lambda x: do_shift(x, shift))
+    B.cache()
     timers.stop("shift")
 
     timers.init_and_start("average")
-    B_avg = B.map(do_average)
+    C = B.map(do_average)
+    C.cache()
     timers.stop("average")
 
     if args.json:
       with open(args.json, "w") as report:
         json.dump(timers.get_all(), report)
 
-    result = B_avg.reduce(lambda n: n + n)
+    result = C.reduce(lambda x, y: x + y)
+    print(result)
     sc.stop()
 
 
