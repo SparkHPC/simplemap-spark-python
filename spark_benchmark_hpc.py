@@ -94,7 +94,7 @@ def main():
 
     # read input files or generate input data
     timers.init_and_start("overall")
-    timers.init_and_start("rdd")
+    timers.init_and_start("rdd A")
     if args.generate:
         gen_num_blocks = args.blocks
         gen_block_size = args.block_size
@@ -107,22 +107,28 @@ def main():
         sc.stop()
         sys.exit(-1)
 
-    timers.stop("rdd")
+    timers.stop("rdd A")
 
-    timers.init_and_start("cache")
+    timers.init_and_start("rdd A eval")
+    count = A.count()
     A.cache()
-    timers.stop("cache")
+    timers.stop("rdd A eval")
 
     # apply simple operation (V'=V+V0)
 
-    timers.init_and_start("shift")
+    timers.init_and_start("rdd B")
     shift = np.array([25.25, -12.125, 6.333], dtype=np.float64)
     B = A.map(lambda x: do_shift(x, shift))
+    timers.stop("rdd B")
+
+    timers.init_and_start("rdd B eval")
+    count2 = B.count()
     B.cache()
-    timers.stop("shift")
+    timers.stop("rdd B eval")
 
     timers.init_and_start("average")
     C = B.map(do_average)
+    count3 = C.count()
     C.cache()
     timers.stop("average")
 
@@ -132,8 +138,16 @@ def main():
     timers.stop("reduce")
     timers.stop("overall")
 
+    variables = {
+        'count' : count,
+        'count2' : count2,
+        'count3' : count3,
+        'result' : result
+    }
+
     if args.json:
       results = {}
+      results['vars'] = variables
       results['args'] = vars(args)
       results['performance'] = timers.get_all()
       with open(args.json, "w") as report:
