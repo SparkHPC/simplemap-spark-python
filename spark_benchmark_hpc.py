@@ -144,8 +144,8 @@ def main():
     variables = {
         'count': count,
         'count2': count2,
-        # NumPy array -> Python list (for JSON serialization)
         'count3': count3,
+        # NumPy array -> Python list (for JSON serialization)
         'result': list(result)
 
     }
