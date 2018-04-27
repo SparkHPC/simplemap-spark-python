@@ -26,7 +26,7 @@ def generate(n, block_count):
     np.random.seed(seed)
     a, b = -1000, 1000
     array = (b-a)*np.random.random_sample((block_count, 3))+a
-    #return (n, arr)
+    # return (n, arr)
     return array
 
 
@@ -58,12 +58,16 @@ def noop(x):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Simple Map Spark Microbenchmark - Python Version")
+    parser = argparse.ArgumentParser(
+        description="Simple Map Spark Microbenchmark - Python Version")
 
     # Options for generating RDD (in memory)
-    parser.add_argument("-g", "--generate", action="store_true", default=False, help="generate data (boolean)")
-    parser.add_argument("-b", "--blocks", type=int, default=0, help="number of blocks")
-    parser.add_argument("-s", "--block_size", type=int, default=0, help="block size")
+    parser.add_argument("-g", "--generate", action="store_true",
+                        default=False, help="generate data (boolean)")
+    parser.add_argument("-b", "--blocks", type=int,
+                        default=0, help="number of blocks")
+    parser.add_argument("-s", "--block_size", type=int,
+                        default=0, help="block size")
 
     # These are all used to define amount of paralleism (for sc.parallelize).
 
@@ -77,13 +81,12 @@ def parse_args():
     # Reporting
     parser.add_argument('-j', "--json", type=str,
                         default=None, help="where to write the report")
-    #parser.add_argument("-z", "--size", type=int, required=True,
+    # parser.add_argument("-z", "--size", type=int, required=True,
     #                    help="input size (in mb, for reporting)")
     return parser.parse_args()
 
 
 def main():
-
 
     sconf = SparkConf()
     sc = SparkContext(appName="simplemap-spark-python", conf=sconf)
@@ -99,7 +102,8 @@ def main():
         gen_num_blocks = args.blocks
         gen_block_size = args.block_size
         x = range(0, gen_num_blocks)
-        rdd = sc.parallelize(range(0, gen_num_blocks), args.nodes * args.cores * args.nparts)
+        rdd = sc.parallelize(range(0, gen_num_blocks),
+                             args.nodes * args.cores * args.nparts)
         gen_block_count = gen_block_size*1E6/24
         A = rdd.map(lambda n: generate(n, gen_block_count))
     else:
@@ -132,27 +136,28 @@ def main():
     C.cache()
     timers.stop("average")
 
-
     timers.init_and_start("reduce")
-    result = C.reduce(lambda x, y: x + y)
+    result = C.reduce(lambda x, y: x + y) / count3
     timers.stop("reduce")
     timers.stop("overall")
 
     variables = {
-        'count' : count,
-        'count2' : count2,
-        'count3' : count3,
-        'result' : result
+        'count': count,
+        'count2': count2,
+        # NumPy array -> Python list (for JSON serialization)
+        'count3': count3,
+        'result': list(result)
+
     }
 
     if args.json:
-      results = {}
-      results['vars'] = variables
-      results['args'] = vars(args)
-      results['performance'] = timers.get_all()
-      with open(args.json, "w") as report:
-        text = json.dumps(results, indent=4, sort_keys=True)
-        report.write(text + "\n")
+        results = {}
+        results['vars'] = variables
+        results['args'] = vars(args)
+        results['performance'] = timers.get_all()
+        with open(args.json, "w") as report:
+            text = json.dumps(results, indent=4, sort_keys=True)
+            report.write(text + "\n")
     sc.stop()
 
 
@@ -182,7 +187,7 @@ class SimpleTimer(object):
         return max(delta_t, 0)
 
     def get_all(self):
-      return {k : self.get_name(k) for k in self.timings.keys()}
+        return {k: self.get_name(k) for k in self.timings.keys()}
 
 
 if __name__ == "__main__":
