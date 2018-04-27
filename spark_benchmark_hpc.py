@@ -93,6 +93,7 @@ def main():
     timers = SimpleTimer()
 
     # read input files or generate input data
+    timers.init_and_start("overall")
     timers.init_and_start("rdd")
     if args.generate:
         gen_num_blocks = args.blocks
@@ -125,12 +126,19 @@ def main():
     C.cache()
     timers.stop("average")
 
-    if args.json:
-      with open(args.json, "w") as report:
-        json.dump(timers.get_all(), report)
 
+    timers.init_and_start("reduce")
     result = C.reduce(lambda x, y: x + y)
-    print(result)
+    timers.stop("reduce")
+    timers.stop("overall")
+
+    if args.json:
+      results = {}
+      results['args'] = vars(args)
+      results['performance'] = timers.get_all()
+      with open(args.json, "w") as report:
+        text = json.dumps(results, indent=4, sort_keys=True)
+        report.write(text + "\n")
     sc.stop()
 
 
