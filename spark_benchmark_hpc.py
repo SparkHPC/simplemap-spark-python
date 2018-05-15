@@ -20,6 +20,7 @@ from pyspark import SparkContext, SparkConf
 
 # Used by RDD lambda to generate the work
 
+MEGA_MULTIPLIER = 1024 * 1024
 
 def generate(n, block_count):
     seed = int(time.time()/(n+1))
@@ -67,7 +68,7 @@ def parse_args():
     parser.add_argument("-b", "--blocks", type=int,
                         default=0, help="number of blocks")
     parser.add_argument("-s", "--block_size", type=int,
-                        default=0, help="block size")
+                        default=0, help="block size (number of 3D float vectors x %d)" % MEGA_MULTIPLIER)
 
     # These are all used to define amount of paralleism (for sc.parallelize).
 
@@ -104,7 +105,7 @@ def main():
         x = range(0, gen_num_blocks)
         rdd = sc.parallelize(range(0, gen_num_blocks),
                              args.nodes * args.cores * args.nparts)
-        gen_block_count = gen_block_size*1024*1024/24
+        gen_block_count = gen_block_size*MEGA_MULTIPLIER
         A = rdd.map(lambda n: generate(n, gen_block_count))
     else:
         print("either --generate must be specified")
