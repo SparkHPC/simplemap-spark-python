@@ -104,7 +104,7 @@ def main():
         x = range(0, gen_num_blocks)
         rdd = sc.parallelize(range(0, gen_num_blocks),
                              args.nodes * args.cores * args.nparts)
-        gen_block_count = gen_block_size*1E6/24
+        gen_block_count = gen_block_size*1024*1024/24
         A = rdd.map(lambda n: generate(n, gen_block_count))
     else:
         print("either --generate must be specified")
