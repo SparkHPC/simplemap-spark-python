@@ -26,8 +26,12 @@ def generate(n, block_count):
     seed = int(time.time()/(n+1))
     np.random.seed(seed)
     a, b = -1000, 1000
+    timers = SimpleTimer()
+    timers.init_and_start("generate")
     array = (b-a)*np.random.random_sample((block_count, 3))+a
-    # return (n, arr)
+    timers.stop("generate")
+    deltat = timers.get_name("generate")
+    print("Array of %s float vectors, time = %s" % (block_count, deltat))
     return array
 
 
