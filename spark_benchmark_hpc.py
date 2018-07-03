@@ -86,6 +86,11 @@ def parse_args():
     # Reporting
     parser.add_argument('-j', "--json", type=str,
                         default=None, help="where to write the report")
+
+    # Laziness
+    parser.add_argument("-l", "--cache", action="store_true",
+                        default=False, help="cache data (for timing intermediate RDD map computations")
+
     # parser.add_argument("-z", "--size", type=int, required=True,
     #                    help="input size (in mb, for reporting)")
     return parser.parse_args()
@@ -119,8 +124,9 @@ def main():
     timers.stop("rdd A")
 
     timers.init_and_start("rdd A eval")
-    count = A.count()
-    A.cache()
+    if not args.lazy:
+       count = A.count()
+       A.cache()
     timers.stop("rdd A eval")
 
     # apply simple operation (V'=V+V0)
@@ -131,14 +137,16 @@ def main():
     timers.stop("rdd B")
 
     timers.init_and_start("rdd B eval")
-    count2 = B.count()
-    B.cache()
+    if not args.lazy:
+       count2 = B.count()
+       B.cache()
     timers.stop("rdd B eval")
 
     timers.init_and_start("average")
     C = B.map(do_average)
-    count3 = C.count()
-    C.cache()
+    if not args.lazy:
+       count3 = C.count()
+       C.cache()
     timers.stop("average")
 
     timers.init_and_start("reduce")
