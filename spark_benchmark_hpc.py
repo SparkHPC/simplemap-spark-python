@@ -159,7 +159,7 @@ def main():
         'count2': count2,
         'count3': count3,
         # NumPy array -> Python list (for JSON serialization)
-        'result': list(result)
+        #'result': list(result)
 
     }
 
