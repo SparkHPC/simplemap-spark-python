@@ -71,7 +71,7 @@ def parse_args():
                         default=False, help="generate data (boolean)")
     parser.add_argument("-b", "--blocks", type=int,
                         default=0, help="number of blocks")
-    parser.add_argument("-s", "--block_size", type=int,
+    parser.add_argument("-k", "--block_size", type=int,
                         default=0, help="block size (number of 3D float vectors x %d)" % MEGA_MULTIPLIER)
 
     # These are all used to define amount of paralleism (for sc.parallelize).
