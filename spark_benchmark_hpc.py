@@ -76,8 +76,8 @@ def parse_args():
 
     # These are all used to define amount of paralleism (for sc.parallelize).
 
-    parser.add_argument("-n", "--nodes", type=int, required=True,
-                        help="number of nodes (for reporting)")
+    parser.add_argument("-n", "--nodes", type=int,
+                        default=1, help="number of nodes (for reporting)")
     parser.add_argument("-p", "--nparts", type=int, default=1,
                         help="how many partitions to create per node")
     parser.add_argument("-c", "--cores", type=int,
