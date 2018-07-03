@@ -88,7 +88,7 @@ def parse_args():
                         default=None, help="where to write the report")
 
     # Laziness
-    parser.add_argument("-l", "--cache", action="store_true",
+    parser.add_argument("-l", "--lazy", action="store_true",
                         default=False, help="cache data (for timing intermediate RDD map computations")
 
     # parser.add_argument("-z", "--size", type=int, required=True,
