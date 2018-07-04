@@ -22,7 +22,8 @@ timers.stop("average")
 
 results = {
     'timings' : timers.get_all(),
-    'shape' : data.shape
+    'rows' : data.shape[0],
+    'cols' : data.shape[1]
 }
 text = json.dumps(results, indent=4, sort_keys=True)
 print(text + "\n")
