@@ -45,16 +45,12 @@ def parseVectors(binary_data):
 
 
 def do_shift(array, vector_displacement):
-    for i in range(len(array)):
-        array[i] += vector_displacement
+    array += vector_displacement
     return array
 
 
 def do_average(array):
-    avg = np.array([0.0, 0.0, 0.0])
-    for i in range(len(array)):
-        avg += array[i]
-    avg /= len(array)
+    avg = np.mean(array, axis=0)
     return avg
 
 
