@@ -20,7 +20,11 @@ timers.init_and_start("average")
 average = do_average(shifted)
 timers.stop("average")
 
-text = json.dumps(timers.get_all(), indent=4, sort_keys=True)
+results = {
+    'timings' : timers.get_all(),
+    'shape' : data.shape
+}
+text = json.dumps(results, indent=4, sort_keys=True)
 print(text + "\n")
 
 
