@@ -150,18 +150,9 @@ def main():
     timers.stop("reduce")
     timers.stop("overall")
 
-    variables = {
-        'count': count,
-        'count2': count2,
-        'count3': count3,
-        # NumPy array -> Python list (for JSON serialization)
-        #'result': list(result)
-
-    }
-
     if args.json:
         results = {}
-        results['vars'] = variables
+        results['experiment'] = { 'id' : 'simplemap-spark-python' }
         results['args'] = vars(args)
         results['performance'] = timers.get_all()
         with open(args.json, "w") as report:
