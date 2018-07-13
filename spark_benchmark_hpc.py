@@ -103,7 +103,7 @@ def main():
 
     # read input files or generate input data
     timers.init_and_start("overall")
-    timers.init_and_start("rdd A")
+    timers.init_and_start("map")
     if args.generate:
         gen_num_blocks = args.blocks
         gen_block_size = args.block_size
@@ -117,26 +117,26 @@ def main():
         sc.stop()
         sys.exit(-1)
 
-    timers.stop("rdd A")
+    timers.stop("map")
 
-    timers.init_and_start("rdd A eval")
+    timers.init_and_start("map eval")
     if not args.lazy:
        count = A.count()
        A.cache()
-    timers.stop("rdd A eval")
+    timers.stop("map eval")
 
     # apply simple operation (V'=V+V0)
 
-    timers.init_and_start("rdd B")
+    timers.init_and_start("shift")
     shift = np.array([25.25, -12.125, 6.333], dtype=np.float64)
     B = A.map(lambda x: do_shift(x, shift))
-    timers.stop("rdd B")
+    timers.stop("shift")
 
-    timers.init_and_start("rdd B eval")
+    timers.init_and_start("shift eval")
     if not args.lazy:
        count2 = B.count()
        B.cache()
-    timers.stop("rdd B eval")
+    timers.stop("shift eval")
 
     timers.init_and_start("average")
     C = B.map(do_average)
