@@ -117,26 +117,21 @@ def main():
         sc.stop()
         sys.exit(-1)
 
-    timers.stop("map")
-
-    timers.init_and_start("map eval")
     if not args.lazy:
        count = A.count()
        A.cache()
-    timers.stop("map eval")
+    timers.stop("map")
 
     # apply simple operation (V'=V+V0)
 
     timers.init_and_start("shift")
     shift = np.array([25.25, -12.125, 6.333], dtype=np.float64)
     B = A.map(lambda x: do_shift(x, shift))
-    timers.stop("shift")
 
-    timers.init_and_start("shift eval")
     if not args.lazy:
        count2 = B.count()
        B.cache()
-    timers.stop("shift eval")
+    timers.stop("shift")
 
     timers.init_and_start("average")
     C = B.map(do_average)
