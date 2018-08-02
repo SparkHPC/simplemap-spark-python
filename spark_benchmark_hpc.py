@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import time
+import math
 
 from pyspark import SparkContext, SparkConf
 
@@ -67,8 +68,10 @@ def parse_args():
                         default=False, help="generate data (boolean)")
     parser.add_argument("-b", "--blocks", type=int,
                         default=0, help="number of blocks")
+    parser.add_argument('-m', "--multiplier", type=int, help="block size multiplier as an integer (default %d = 2^%d)" % (MEGA_MULTIPLIER, math.log2(MEGA_MULTIPLIER)), default=MEGA_MULTIPLIER)
+
     parser.add_argument("-k", "--block_size", type=int,
-                        default=0, help="block size (number of 3D float vectors x %d)" % MEGA_MULTIPLIER)
+                        default=0, help="block size (number of 3D float vectors times value of --multiplier)")
 
     # These are all used to define amount of paralleism (for sc.parallelize).
 
@@ -110,7 +113,7 @@ def main():
         x = range(0, gen_num_blocks)
         rdd = sc.parallelize(range(0, gen_num_blocks),
                              args.nodes * args.cores * args.nparts)
-        gen_block_count = gen_block_size*MEGA_MULTIPLIER
+        gen_block_count = gen_block_size*args.multiplier
         A = rdd.map(lambda n: generate(n, gen_block_count))
     else:
         print("either --generate must be specified")
