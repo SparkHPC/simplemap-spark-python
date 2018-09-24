@@ -32,7 +32,7 @@ def generate(n, block_count):
     array = (b-a)*np.random.random_sample((block_count, 3))+a
     timers.stop("generate")
     deltat = timers.get_name("generate")
-    print("Array of %s float vectors, time = %s" % (block_count, deltat))
+    print("Array (block id=%s) of %s float vectors, time = %s" % (n, block_count, deltat))
     return array
 
 
@@ -121,8 +121,8 @@ def main():
         sys.exit(-1)
 
     if not args.lazy:
-       count = A.count()
        A.cache()
+       count = A.count()
     timers.stop("map")
 
     # apply simple operation (V'=V+V0)
@@ -132,15 +132,15 @@ def main():
     B = A.map(lambda x: do_shift(x, shift))
 
     if not args.lazy:
-       count2 = B.count()
        B.cache()
+       count2 = B.count()
     timers.stop("shift")
 
     timers.init_and_start("average")
     C = B.map(do_average)
     if not args.lazy:
-       count3 = C.count()
        C.cache()
+       count3 = C.count()
     timers.stop("average")
 
     timers.init_and_start("reduce")
