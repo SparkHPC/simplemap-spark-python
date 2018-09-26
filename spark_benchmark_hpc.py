@@ -144,7 +144,7 @@ def main():
     timers.stop("average")
 
     timers.init_and_start("reduce")
-    result = C.reduce(lambda x, y: x + y) / count3
+    result = C.reduce(lambda x, y: x + y) / gen_num_blocks
     timers.stop("reduce")
     timers.stop("overall")
 
