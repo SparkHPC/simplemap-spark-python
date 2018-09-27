@@ -110,7 +110,6 @@ def main():
     if args.generate:
         gen_num_blocks = args.blocks
         gen_block_size = args.block_size
-        x = range(0, gen_num_blocks)
         rdd = sc.parallelize(range(0, gen_num_blocks),
                              args.nodes * args.cores * args.nparts)
         gen_block_count = gen_block_size*args.multiplier
